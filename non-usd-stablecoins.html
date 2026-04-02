@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Non-USD Stablecoins — Market Landscape Q1 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0F172A; color: #E2E8F0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; padding: 24px 20px; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #94A3B8; font-size: 14px; margin-bottom: 20px; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .card { background: #1E293B; border-radius: 10px; padding: 14px 16px; border: 1px solid #334155; }
+  .card-label { color: #94A3B8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card-value { color: #F8FAFC; font-size: 22px; font-weight: 700; margin: 4px 0 2px; }
+  .card-sub { color: #4ADE80; font-size: 11px; }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid #334155; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { background: transparent; color: #64748B; border: 1px solid transparent; border-bottom: 1px solid transparent; border-radius: 8px 8px 0 0; padding: 8px 14px; cursor: pointer; font-size: 13px; font-weight: 400; margin-bottom: -1px; }
+  .tab.active { background: #1E293B; color: #F8FAFC; border-color: #334155; border-bottom-color: #0F172A; font-weight: 600; }
+  .controls { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+  .btn-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .btn { background: transparent; color: #64748B; border: 1px solid #1E293B; border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 12px; font-weight: 400; }
+  .btn.active { background: #334155; color: #F8FAFC; border-color: #475569; font-weight: 600; }
+  .btn:hover { border-color: #475569; }
+  .separator { width: 1px; height: 20px; background: #334155; margin: 0 4px; }
+  .currency-toggles { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .currency-btn { border-radius: 6px; padding: 4px 12px; cursor: pointer; font-size: 12px; font-weight: 500; }
+  .chart-box { position: relative; height: 420px; margin-bottom: 24px; }
+  .chart-box-sm { position: relative; height: 280px; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: right; padding: 8px 12px; color: #64748B; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1px solid #334155; }
+  th:first-child { text-align: left; }
+  td { padding: 10px 12px; text-align: right; border-bottom: 1px solid #1E293B; }
+  td:first-child { text-align: left; font-weight: 600; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+  .events { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+  .event { background: #1E293B; border-radius: 8px; padding: 12px 16px; border: 1px solid #334155; }
+  .event-title { font-size: 11px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+  .event-desc { color: #CBD5E1; font-size: 12px; line-height: 1.5; }
+  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .section-sub { color: #94A3B8; font-size: 13px; margin-bottom: 16px; }
+  .sources { margin-top: 32px; padding-top: 16px; border-top: 1px solid #1E293B; font-size: 11px; color: #64748B; }
+  .sources a { color: #64748B; }
+  .hidden { display: none; }
+  .insight { background: #1E293B; border-radius: 10px; padding: 16px 20px; margin-top: 20px; border: 1px solid #334155; }
+  .insight h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #F8FAFC; }
+  .insight p { color: #CBD5E1; font-size: 13px; line-height: 1.6; }
+  .pie-layout { display: flex; gap: 32px; align-items: center; flex-wrap: wrap; }
+  .pie-chart-wrap { width: 320px; height: 320px; }
+  .pie-bars { flex: 1; min-width: 260px; }
+  .pie-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .pie-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .pie-label { width: 40px; font-weight: 600; }
+  .pie-bar-bg { flex: 1; background: #1E293B; border-radius: 4px; height: 20px; overflow: hidden; }
+  .pie-bar-fill { height: 100%; border-radius: 4px; opacity: 0.8; }
+  .pie-val { font-size: 13px; color: #94A3B8; width: 65px; text-align: right; }
+  .pie-pct { font-size: 12px; color: #64748B; width: 45px; text-align: right; }
+  @media (max-width: 700px) { .cards { grid-template-columns: repeat(2, 1fr); } .events { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Non-USD Stablecoins — Market Landscape</h1>
+  <p class="subtitle">Market cap evolution, transfer volume &amp; adoption · Apr 2024 → Mar 2026</p>
+
+  <div class="cards">
+    <div class="card"><div class="card-label">Total Non-USD Mcap</div><div class="card-value">$~830M</div><div class="card-sub">3x since Jan 2023</div></div>
+    <div class="card"><div class="card-label">Monthly Volume</div><div class="card-value">$10B</div><div class="card-sub">16x since Jan 2023</div></div>
+    <div class="card"><div class="card-label">Unique Senders</div><div class="card-value">135K/mo</div><div class="card-sub">22x since Jan 2023</div></div>
+    <div class="card"><div class="card-label">Holder Addresses</div><div class="card-value">1.2M+</div><div class="card-sub">30x since Jan 2023</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="evolution">LTM Evolution</button>
+    <button class="tab" data-tab="overview">Market Cap Snapshot</button>
+    <button class="tab" data-tab="growth">Aggregate Growth</button>
+    <button class="tab" data-tab="currency">Currency Mix</button>
+    <button class="tab" data-tab="senders">Regional Adoption</button>
+  </div>
+
+  <!-- LTM EVOLUTION -->
+  <div id="panel-evolution">
+    <div class="controls">
+      <div>
+        <h2 class="section-title">Market Cap Evolution by Currency Peg</h2>
+        <p id="evo-sub" class="section-sub">Absolute market cap in $M — toggle to indexed view for comparison</p>
+      </div>
+      <div class="btn-group">
+        <button class="btn" data-range="3">3M</button>
+        <button class="btn" data-range="6">6M</button>
+        <button class="btn active" data-range="12">LTM</button>
+        <button class="btn" data-range="999">All</button>
+        <div class="separator"></div>
+        <button class="btn" id="indexBtn">Index to 100</button>
+      </div>
+    </div>
+    <div class="currency-toggles" id="currToggles"></div>
+    <div class="chart-box"><canvas id="evoCanvas"></canvas></div>
+    <h3 id="mTitle" style="font-size:14px;font-weight:600;margin-bottom:12px;color:#F8FAFC"></h3>
+    <div style="overflow-x:auto"><table id="mTable"></table></div>
+    <div class="events">
+      <div class="event"><p class="event-title" style="color:#3B82F6">Jun 2024 — MiCA Enforcement</p><p class="event-desc">EUR stablecoins dipped as non-compliant tokens (EURT) were delisted, then surged as EURC/EURS captured the vacuum. EUR market cap doubled in 12 months post-MiCA (+102%).</p></div>
+      <div class="event"><p class="event-title" style="color:#EF4444">Oct 2025 — JPYC Launch</p><p class="event-desc">Japan's first regulated yen stablecoin under the Payment Services Act. JPY market cap jumped from ~$10M to $34M in 6 months — the fastest-growing non-EUR currency peg.</p></div>
+    </div>
+  </div>
+
+  <!-- SNAPSHOT -->
+  <div id="panel-overview" class="hidden">
+    <h2 class="section-title" style="margin-bottom:16px">Market Cap &amp; 24h Volume by Stablecoin ($M)</h2>
+    <div class="chart-box"><canvas id="ovCanvas"></canvas></div>
+    <div style="overflow-x:auto"><table id="ovTable"></table></div>
+  </div>
+
+  <!-- AGGREGATE GROWTH -->
+  <div id="panel-growth" class="hidden">
+    <h2 class="section-title">Aggregate Non-USD Stablecoin Growth: Jan 2023 → Feb 2026</h2>
+    <p class="section-sub">Monthly transfer volume grew 16x while supply grew 3x — indicating these assets are being used as money, not just held.</p>
+    <p style="font-size:13px;color:#64748B;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Monthly Transfer Volume ($B)</p>
+    <div class="chart-box-sm"><canvas id="volCanvas"></canvas></div>
+    <p style="font-size:13px;color:#64748B;margin:28px 0 8px;text-transform:uppercase;letter-spacing:.5px">Monthly Unique Senders (K) &amp; Supply ($B)</p>
+    <div class="chart-box-sm"><canvas id="senCanvas"></canvas></div>
+  </div>
+
+  <!-- CURRENCY MIX -->
+  <div id="panel-currency" class="hidden">
+    <h2 class="section-title">Market Cap by Pegged Currency</h2>
+    <p class="section-sub">Euro-pegged stablecoins dominate at ~80% of the non-USD market, driven by MiCA regulatory clarity.</p>
+    <div class="pie-layout">
+      <div class="pie-chart-wrap"><canvas id="pieCanvas"></canvas></div>
+      <div class="pie-bars" id="pieBars"></div>
+    </div>
+  </div>
+
+  <!-- REGIONAL -->
+  <div id="panel-senders" class="hidden">
+    <h2 class="section-title">Regional Adoption: Monthly Active Senders</h2>
+    <p class="section-sub">Regulatory frameworks drive adoption: EUR zone leads after MiCA, Brazil after Central Bank resolutions, Japan after Payment Services Act amendments.</p>
+    <div class="chart-box-sm"><canvas id="regCanvas"></canvas></div>
+    <div class="insight"><h3>Key Insight</h3><p>Transfer volume growing 16x while supply grew only 3x indicates these stablecoins are being <strong style="color:#4ADE80">actively used as money</strong> — turned over repeatedly in settlement flows — rather than sitting idle in wallets.</p></div>
+  </div>
+
+  <div class="sources">
+    <p>Sources: <a href="https://defillama.com/stablecoins">DefiLlama</a> · <a href="https://www.coingecko.com/en/categories/stablecoins">CoinGecko</a> · <a href="https://coinmarketcap.com/view/stablecoin/">CoinMarketCap</a> · <a href="https://www.coindesk.com/business/2025/12/06/hold-euro-stablecoin-market-cap-doubles-in-year-after-mica-decta-says">CoinDesk</a> · <a href="https://stablecoininsider.org/stablecoin-statistics-in-2026/">Stablecoin Insider</a> · <a href="https://www.trmlabs.com/reports-and-whitepapers/2025-crypto-adoption-and-stablecoin-usage-report">TRM Labs</a> · <a href="https://app.artemisanalytics.com/stablecoins">Artemis</a> · <a href="https://app.rwa.xyz/stablecoins">RWA.xyz</a> · Data as of Q1 2026 · Some figures are estimates</p>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+var monthlyData = [
+  {date:"Apr 2024",EUR:280,JPY:3.0,SGD:8.5,BRL:5.0,IDR:4.2,TRY:2.0},
+  {date:"May 2024",EUR:260,JPY:3.2,SGD:8.0,BRL:4.8,IDR:4.0,TRY:1.9},
+  {date:"Jun 2024",EUR:220,JPY:3.5,SGD:7.5,BRL:4.5,IDR:3.8,TRY:1.8},
+  {date:"Jul 2024",EUR:195,JPY:3.8,SGD:7.8,BRL:4.6,IDR:3.9,TRY:1.9},
+  {date:"Aug 2024",EUR:210,JPY:4.0,SGD:8.2,BRL:5.0,IDR:4.0,TRY:2.0},
+  {date:"Sep 2024",EUR:235,JPY:4.2,SGD:8.5,BRL:5.2,IDR:4.1,TRY:2.1},
+  {date:"Oct 2024",EUR:270,JPY:4.5,SGD:9.0,BRL:5.5,IDR:4.3,TRY:2.2},
+  {date:"Nov 2024",EUR:310,JPY:4.8,SGD:9.5,BRL:6.0,IDR:4.5,TRY:2.3},
+  {date:"Dec 2024",EUR:355,JPY:5.2,SGD:10.0,BRL:6.5,IDR:4.8,TRY:2.5},
+  {date:"Jan 2025",EUR:390,JPY:5.5,SGD:10.5,BRL:7.0,IDR:5.0,TRY:2.6},
+  {date:"Feb 2025",EUR:420,JPY:6.0,SGD:11.0,BRL:7.5,IDR:5.2,TRY:2.7},
+  {date:"Mar 2025",EUR:450,JPY:6.5,SGD:11.5,BRL:8.0,IDR:5.5,TRY:2.8},
+  {date:"Apr 2025",EUR:475,JPY:7.0,SGD:12.0,BRL:8.5,IDR:5.8,TRY:2.9},
+  {date:"May 2025",EUR:500,JPY:7.5,SGD:12.5,BRL:9.0,IDR:6.0,TRY:3.0},
+  {date:"Jun 2025",EUR:530,JPY:8.0,SGD:13.0,BRL:9.5,IDR:6.2,TRY:3.1},
+  {date:"Jul 2025",EUR:560,JPY:8.5,SGD:13.5,BRL:10.0,IDR:6.5,TRY:3.2},
+  {date:"Aug 2025",EUR:590,JPY:9.0,SGD:14.0,BRL:10.5,IDR:6.8,TRY:3.3},
+  {date:"Sep 2025",EUR:620,JPY:10.0,SGD:14.5,BRL:11.0,IDR:7.0,TRY:3.4},
+  {date:"Oct 2025",EUR:650,JPY:18.0,SGD:15.0,BRL:11.5,IDR:7.2,TRY:3.5},
+  {date:"Nov 2025",EUR:670,JPY:22.0,SGD:15.5,BRL:11.8,IDR:7.5,TRY:3.5},
+  {date:"Dec 2025",EUR:680,JPY:25.0,SGD:16.0,BRL:12.0,IDR:7.8,TRY:3.5},
+  {date:"Jan 2026",EUR:660,JPY:28.0,SGD:16.5,BRL:12.2,IDR:7.9,TRY:3.5},
+  {date:"Feb 2026",EUR:650,JPY:30.0,SGD:16.8,BRL:12.5,IDR:8.0,TRY:3.5},
+  {date:"Mar 2026",EUR:680,JPY:34.4,SGD:17.0,BRL:12.0,IDR:7.8,TRY:3.5}
+];
+
+var CURRENCIES = [
+  {key:"EUR",label:"EUR (Euro)",color:"#3B82F6"},
+  {key:"JPY",label:"JPY (Yen)",color:"#EF4444"},
+  {key:"SGD",label:"SGD (Singapore $)",color:"#F59E0B"},
+  {key:"BRL",label:"BRL (Real)",color:"#10B981"},
+  {key:"IDR",label:"IDR (Rupiah)",color:"#8B5CF6"},
+  {key:"TRY",label:"TRY (Lira)",color:"#EC4899"}
+];
+
+var mcData = [
+  {name:"EURC",cur:"EUR",mc:415,vol:420,iss:"Circle",clr:"#3B82F6"},
+  {name:"EURS",cur:"EUR",mc:153,vol:38,iss:"STASIS",clr:"#60A5FA"},
+  {name:"EURCV",cur:"EUR",mc:52,vol:12,iss:"SG Forge",clr:"#93C5FD"},
+  {name:"EUROP",cur:"EUR",mc:28,vol:5,iss:"Schuman Financial",clr:"#BFDBFE"},
+  {name:"EURR",cur:"EUR",mc:18,vol:3,iss:"StablR",clr:"#DBEAFE"},
+  {name:"JPYC",cur:"JPY",mc:26.4,vol:8.2,iss:"JPYC Inc.",clr:"#EF4444"},
+  {name:"XSGD",cur:"SGD",mc:17,vol:4.5,iss:"StraitsX",clr:"#F59E0B"},
+  {name:"BRZ",cur:"BRL",mc:12,vol:3.1,iss:"Transfero",clr:"#10B981"},
+  {name:"GYEN",cur:"JPY",mc:8,vol:2.0,iss:"GMO Trust",clr:"#F87171"},
+  {name:"BIDR",cur:"IDR",mc:5,vol:1.2,iss:"Tokocrypto",clr:"#8B5CF6"},
+  {name:"TRYB",cur:"TRY",mc:3.5,vol:0.8,iss:"BiLira",clr:"#EC4899"},
+  {name:"XIDR",cur:"IDR",mc:2.8,vol:0.6,iss:"StraitsX",clr:"#A78BFA"}
+];
+
+var growthTL = [
+  {date:"Jan 2023",vol:0.6,supply:0.35,senders:6},{date:"Apr 2023",vol:0.8,supply:0.38,senders:9},
+  {date:"Jul 2023",vol:1.1,supply:0.40,senders:12},{date:"Oct 2023",vol:1.4,supply:0.42,senders:16},
+  {date:"Jan 2024",vol:1.8,supply:0.45,senders:22},{date:"Apr 2024",vol:2.3,supply:0.50,senders:30},
+  {date:"Jul 2024",vol:3.0,supply:0.55,senders:40},{date:"Oct 2024",vol:3.8,supply:0.62,senders:52},
+  {date:"Jan 2025",vol:4.8,supply:0.72,senders:65},{date:"Apr 2025",vol:5.5,supply:0.78,senders:78},
+  {date:"Jul 2025",vol:6.5,supply:0.85,senders:90},{date:"Oct 2025",vol:7.8,supply:0.95,senders:108},
+  {date:"Jan 2026",vol:9.2,supply:1.05,senders:125},{date:"Feb 2026",vol:10.0,supply:1.10,senders:135}
+];
+
+var currBreak = [
+  {cur:"EUR",cap:680,share:80.1,clr:"#3B82F6"},{cur:"JPY",cap:34.4,share:4.6,clr:"#EF4444"},
+  {cur:"SGD",cap:17,share:2.3,clr:"#F59E0B"},{cur:"BRL",cap:12,share:1.6,clr:"#10B981"},
+  {cur:"IDR",cap:7.8,share:1.0,clr:"#8B5CF6"},{cur:"TRY",cap:3.5,share:0.5,clr:"#EC4899"},
+  {cur:"Other",cap:76.3,share:9.9,clr:"#6B7280"}
+];
+
+var regionData = [{r:"EUR zone",s:100,c:"#3B82F6"},{r:"Brazil (BRL)",s:14,c:"#10B981"},{r:"Japan (JPY)",s:10,c:"#EF4444"},{r:"Other",s:11,c:"#6B7280"}];
+
+// ============ STATE ============
+var curRange = 12, isIndexed = false;
+var vis = {}; CURRENCIES.forEach(function(c){vis[c.key]=true;});
+var evoChart = null, initdTabs = {};
+
+// ============ CHART DEFAULTS ============
+Chart.defaults.color = "#94A3B8";
+Chart.defaults.borderColor = "#1E293B";
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+
+// ============ HELPERS ============
+function cGrowth(s,e){return s?((e-s)/s)*100:null;}
+function cCAGR(s,e,y){return(s&&y)?(Math.pow(e/s,1/y)-1)*100:null;}
+function fPct(v){if(v==null)return"N/A";return(v>=0?"+":"")+v.toFixed(1)+"%";}
+function getSlice(){return monthlyData.slice(-Math.min(curRange,monthlyData.length));}
+function getChartData(){
+  var fd=getSlice();
+  if(!isIndexed)return fd;
+  var b=fd[0];
+  return fd.map(function(r){
+    var o={date:r.date};
+    CURRENCIES.forEach(function(c){o[c.key]=b[c.key]>0?(r[c.key]/b[c.key])*100:0;});
+    return o;
+  });
+}
+
+// ============ TABS ============
+document.querySelectorAll(".tab").forEach(function(btn){
+  btn.addEventListener("click",function(){
+    document.querySelectorAll(".tab").forEach(function(b){b.classList.remove("active");});
+    btn.classList.add("active");
+    var t=btn.getAttribute("data-tab");
+    ["evolution","overview","growth","currency","senders"].forEach(function(id){
+      document.getElementById("panel-"+id).classList.toggle("hidden",id!==t);
+    });
+    if(t==="overview"&&!initdTabs.ov)initOverview();
+    if(t==="growth"&&!initdTabs.gr)initGrowth();
+    if(t==="currency"&&!initdTabs.cu)initCurrency();
+    if(t==="senders"&&!initdTabs.se)initSenders();
+  });
+});
+
+// ============ EVOLUTION ============
+function buildToggles(){
+  var el=document.getElementById("currToggles"); el.innerHTML="";
+  CURRENCIES.forEach(function(c){
+    var b=document.createElement("button"); b.className="currency-btn";
+    b.innerHTML='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+(vis[c.key]?c.color:"#475569")+';margin-right:6px;vertical-align:middle"></span>'+c.label;
+    b.style.background=vis[c.key]?c.color+"22":"transparent";
+    b.style.color=vis[c.key]?c.color:"#475569";
+    b.style.border="1px solid "+(vis[c.key]?c.color+"66":"#1E293B");
+    b.style.opacity=vis[c.key]?1:0.5;
+    b.addEventListener("click",function(){vis[c.key]=!vis[c.key];updateEvo();buildToggles();});
+    el.appendChild(b);
+  });
+}
+
+function updateEvo(){
+  var data=getChartData(), fd=getSlice();
+  var labels=data.map(function(d){return d.date;});
+  var datasets=CURRENCIES.filter(function(c){return vis[c.key];}).map(function(c){
+    return{label:c.label,data:data.map(function(d){return d[c.key];}),borderColor:c.color,backgroundColor:c.color+"33",borderWidth:2.5,pointRadius:3,pointBackgroundColor:c.color,tension:0.3,fill:false};
+  });
+
+  if(evoChart){
+    evoChart.data.labels=labels; evoChart.data.datasets=datasets;
+    evoChart.options.scales.y.title.text=isIndexed?"Indexed (100 = start)":"Market Cap ($M)";
+    evoChart.update();
+  } else {
+    evoChart=new Chart(document.getElementById("evoCanvas"),{
+      type:"line",data:{labels:labels,datasets:datasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        interaction:{mode:"index",intersect:false},
+        scales:{
+          x:{grid:{color:"#1E293B"},ticks:{maxRotation:45}},
+          y:{grid:{color:"#1E293B"},title:{display:true,text:isIndexed?"Indexed (100 = start)":"Market Cap ($M)"}}
+        },
+        plugins:{
+          legend:{position:"top",labels:{usePointStyle:true,pointStyle:"circle",padding:16}},
+          tooltip:{backgroundColor:"#1E293B",borderColor:"#334155",borderWidth:1,titleColor:"#94A3B8",bodyColor:"#E2E8F0",
+            callbacks:{label:function(ctx){var v=ctx.parsed.y;return ctx.dataset.label+": "+(isIndexed?v.toFixed(1):"$"+v.toFixed(1)+"M");}}
+          }
+        }
+      }
+    });
+  }
+
+  document.getElementById("evo-sub").textContent=isIndexed?"Indexed to 100 at start of period — shows relative performance":"Absolute market cap in $M — toggle to indexed view for comparison";
+  updateMetrics(fd);
+}
+
+function updateMetrics(fd){
+  if(fd.length<2)return;
+  var first=fd[0],last=fd[fd.length-1],months=fd.length-1,years=months/12;
+  var rl=curRange===3?"3M":curRange===6?"6M":curRange===12?"LTM":"All";
+  document.getElementById("mTitle").textContent="Growth Metrics — "+rl+" Period ("+first.date+" → "+last.date+")";
+
+  var metrics=CURRENCIES.filter(function(c){return vis[c.key];}).map(function(c){
+    return{label:c.label,color:c.color,start:first[c.key],end:last[c.key],growth:cGrowth(first[c.key],last[c.key]),cagr:cCAGR(first[c.key],last[c.key],years),abs:last[c.key]-first[c.key]};
+  }).sort(function(a,b){return(b.growth||0)-(a.growth||0);});
+
+  var h='<thead><tr><th style="text-align:left">Currency</th><th>Start</th><th>End</th><th>Abs. Change</th><th>Period Growth</th><th>Annualized (CAGR)</th></tr></thead><tbody>';
+  metrics.forEach(function(m){
+    var pos=m.growth!=null&&m.growth>=0,clr=pos?"#4ADE80":"#F87171";
+    h+='<tr><td><span class="dot" style="background:'+m.color+'"></span>'+m.label+'</td>';
+    h+='<td style="color:#94A3B8">$'+m.start.toFixed(1)+'M</td>';
+    h+='<td style="font-weight:600">$'+m.end.toFixed(1)+'M</td>';
+    h+='<td style="color:'+clr+'">'+(pos?"+":"")+m.abs.toFixed(1)+'M</td>';
+    h+='<td style="color:'+clr+';font-weight:700;font-size:14px">'+fPct(m.growth)+'</td>';
+    h+='<td style="color:#94A3B8">'+fPct(m.cagr)+'</td></tr>';
+  });
+  h+="</tbody>";
+  document.getElementById("mTable").innerHTML=h;
+}
+
+document.querySelectorAll("[data-range]").forEach(function(btn){
+  btn.addEventListener("click",function(){
+    document.querySelectorAll("[data-range]").forEach(function(b){b.classList.remove("active");});
+    btn.classList.add("active");
+    curRange=parseInt(btn.getAttribute("data-range"));
+    updateEvo();
+  });
+});
+
+document.getElementById("indexBtn").addEventListener("click",function(){
+  isIndexed=!isIndexed;
+  this.classList.toggle("active",isIndexed);
+  this.textContent=isIndexed?"Indexed \u2713":"Index to 100";
+  updateEvo();
+});
+
+// ============ OVERVIEW ============
+function initOverview(){
+  initdTabs.ov=true;
+  new Chart(document.getElementById("ovCanvas"),{
+    type:"bar",
+    data:{labels:mcData.map(function(d){return d.name;}),
+      datasets:[
+        {label:"Market Cap ($M)",data:mcData.map(function(d){return d.mc;}),backgroundColor:mcData.map(function(d){return d.clr;}),borderRadius:4,order:2},
+        {label:"24h Volume ($M)",data:mcData.map(function(d){return d.vol;}),type:"line",borderColor:"#FBBF24",backgroundColor:"#FBBF24",pointRadius:4,borderWidth:2,order:1}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{color:"#1E293B"}},y:{grid:{color:"#1E293B"},ticks:{callback:function(v){return"$"+v+"M";}}}},
+      plugins:{legend:{position:"top",labels:{usePointStyle:true,padding:16}},tooltip:{backgroundColor:"#1E293B",borderColor:"#334155",borderWidth:1,callbacks:{label:function(c){return c.dataset.label+": $"+c.parsed.y+"M";}}}}
+    }
+  });
+  var h='<thead><tr><th style="text-align:left">Stablecoin</th><th style="text-align:left">Peg</th><th style="text-align:left">Issuer</th><th style="text-align:left">Market Cap</th><th style="text-align:left">24h Volume</th></tr></thead><tbody>';
+  mcData.forEach(function(c){h+='<tr><td><span class="dot" style="background:'+c.clr+'"></span>'+c.name+'</td><td style="text-align:left;color:#94A3B8">'+c.cur+'</td><td style="text-align:left;color:#94A3B8">'+c.iss+'</td><td style="text-align:left">$'+c.mc+'M</td><td style="text-align:left;color:#94A3B8">$'+c.vol+'M</td></tr>';});
+  h+="</tbody>"; document.getElementById("ovTable").innerHTML=h;
+}
+
+// ============ GROWTH ============
+function initGrowth(){
+  initdTabs.gr=true;
+  new Chart(document.getElementById("volCanvas"),{
+    type:"line",data:{labels:growthTL.map(function(d){return d.date;}),datasets:[{label:"Transfer Volume ($B)",data:growthTL.map(function(d){return d.vol;}),borderColor:"#3B82F6",backgroundColor:"#3B82F620",fill:true,tension:0.3,pointRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:"#1E293B"}},y:{grid:{color:"#1E293B"},ticks:{callback:function(v){return"$"+v+"B";}}}},plugins:{legend:{display:false},tooltip:{backgroundColor:"#1E293B",borderColor:"#334155",borderWidth:1,callbacks:{label:function(c){return"$"+c.parsed.y+"B";}}}}}
+  });
+  new Chart(document.getElementById("senCanvas"),{
+    type:"bar",data:{labels:growthTL.map(function(d){return d.date;}),datasets:[
+      {label:"Unique Senders (K)",data:growthTL.map(function(d){return d.senders;}),backgroundColor:"#8B5CF6aa",borderRadius:4,yAxisID:"y"},
+      {label:"Supply ($B)",data:growthTL.map(function(d){return d.supply;}),type:"line",borderColor:"#4ADE80",backgroundColor:"#4ADE80",pointRadius:3,borderWidth:2,yAxisID:"y1"}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:"#1E293B"}},y:{grid:{color:"#1E293B"},position:"left",ticks:{callback:function(v){return v+"K";}}},y1:{grid:{drawOnChartArea:false},position:"right",ticks:{callback:function(v){return"$"+v+"B";}}}},plugins:{legend:{position:"top",labels:{usePointStyle:true,padding:16}},tooltip:{backgroundColor:"#1E293B",borderColor:"#334155",borderWidth:1}}}
+  });
+}
+
+// ============ CURRENCY MIX ============
+function initCurrency(){
+  initdTabs.cu=true;
+  new Chart(document.getElementById("pieCanvas"),{
+    type:"doughnut",data:{labels:currBreak.map(function(c){return c.cur;}),datasets:[{data:currBreak.map(function(c){return c.cap;}),backgroundColor:currBreak.map(function(c){return c.clr;}),borderWidth:0,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"45%",plugins:{legend:{display:false},tooltip:{backgroundColor:"#1E293B",borderColor:"#334155",borderWidth:1,callbacks:{label:function(ctx){return ctx.label+": $"+ctx.parsed+"M ("+currBreak[ctx.dataIndex].share+"%)";}}}} }
+  });
+  var el=document.getElementById("pieBars");
+  currBreak.forEach(function(c){
+    el.innerHTML+='<div class="pie-row"><span class="pie-swatch" style="background:'+c.clr+'"></span><span class="pie-label">'+c.cur+'</span><div class="pie-bar-bg"><div class="pie-bar-fill" style="background:'+c.clr+';width:'+Math.max(c.share,2)+'%"></div></div><span class="pie-val">$'+c.cap+'M</span><span class="pie-pct">'+c.share+'%</span></div>';
+  });
+}
+
+// ============ REGIONAL ============
+function initSenders(){
+  initdTabs.se=true;
+  new Chart(document.getElementById("regCanvas"),{
+    type:"bar",data:{labels:regionData.map(function(d){return d.r;}),datasets:[{label:"Monthly Senders (K)",data:regionData.map(function(d){return d.s;}),backgroundColor:regionData.map(function(d){return d.c;}),borderRadius:6,barThickness:36}]},
+    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:"#1E293B"},ticks:{callback:function(v){return v+"K";}}},y:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{backgroundColor:"#1E293B",borderColor:"#334155",borderWidth:1,callbacks:{label:function(c){return c.parsed.x+"K monthly senders";}}}}}
+  });
+}
+
+// ============ INIT ============
+buildToggles();
+updateEvo();
+</script>
+</body>
+</html>
